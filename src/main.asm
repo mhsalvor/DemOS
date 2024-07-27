@@ -31,7 +31,6 @@ puts:
 
   jmp .loop   ; go back at the beginning
 
-
 .done:
   pop ax
   pop si
@@ -53,7 +52,6 @@ main:
   mov si, msg_hello
   call puts
 
-
   hlt
 
 .halt:
@@ -61,6 +59,7 @@ main:
 
 
 msg_hello: db 'Hello World!', ENDL, 0
+
 
 times 510-($-$$) db 0
 dw 0AA55h

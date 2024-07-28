@@ -84,19 +84,21 @@ main:
     ; BIOS should set DL to drive number
     mov [ebr_drive_number], dl
 
-    mov ax, 1       ; LBA = 1, second sector from disk
-    mov cl, 1       ; 1 sector to read
-    mov bx, 0x7E00  ; data should be after the bootloader
+    mov ax, 1           ; LBA = 1, second sector from disk
+    mov cl, 1           ; 1 sector to read
+    mov bx, 0x7E00      ; data should be after the bootloader
     call disk_read
 
     ; print message
     mov si, msg_hello
     call puts
 
+    cli         ; disable interrupts, this way CPU can't get out of "halt" state
     hlt
 
+
 ;
-; Error Handlers
+; Error handlers
 ;
 
 floppy_error:
@@ -112,7 +114,6 @@ wait_key_and_reboot:
 .halt:
     cli         ; disable interrupts, so CPU can't get out of "halt" state
     hlt
-
 
 
 ;
@@ -134,10 +135,10 @@ lba_to_chs:
     push ax
     push dx
 
-
     xor dx, dx                          ; dx = 0
     div word [bdb_sectors_per_track]    ; ax = LBA / SectorsPerTrack
                                         ; dx = LBA % SectorsPerTrack
+
     inc dx                              ; dx = (LBA % SectorsPerTrack +1) = sector
     mov cx, dx                          ; cx = sector
 
@@ -164,6 +165,7 @@ lba_to_chs:
 ;
 
 disk_read:
+
     push ax                             ; save registers we will modify
     push bx
     push cx
@@ -205,6 +207,7 @@ disk_read:
     pop ax
     ret
 
+
 ;
 ; Resets disk controller
 ;   Parameters:
@@ -220,15 +223,9 @@ disk_reset:
     ret
 
 
-
-
-
-
-
-
-
 msg_hello:          db 'Hello World!', ENDL, 0
 msg_read_failed:    db 'Failed to read from disk!', ENDL, 0
 
 times 510-($-$$) db 0
 dw 0AA55h
+; vim: set ft=nasm :

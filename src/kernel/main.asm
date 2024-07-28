@@ -64,3 +64,4 @@ msg_hello: db 'Hello World!', ENDL, 0
 
 times 510-($-$$) db 0
 dw 0AA55h
+; vim: set ft=nasm :

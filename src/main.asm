@@ -6,7 +6,7 @@ bits 16
 
 
 start:
-  jmp main
+    jmp main
 
 
 ;
@@ -15,47 +15,48 @@ start:
 ;   - ds:si points to a string
 ;
 puts:
-  ; save registers we will modify
-  push si
-  push ax
+    ; save registers we will modify
+    push si
+    push ax
+    push bx
 
 .loop:
-  lodsb      ; loads next character in al
-  or al, al   ; bitwise OR, verify if next char is null?
-  jz .done    ; conditional jump to exit
+    lodsb         ; loads next character in al
+    or al, al     ; bitwise OR, verify if next char is null?
+    jz .done      ; conditional jump to exit
 
-    ; call BIOS interrupt
-  mov ah, 0x0e
-  mov bh, 0       ; set pagenumber to 0
-  int 0x10
+    mov ah, 0x0E    ; call BIOS interrupt
+    mov bh, 0       ; set pagenumber to 0
+    int 0x10
 
-  jmp .loop   ; go back at the beginning
+    jmp .loop   ; go back at the beginning
 
 .done:
-  pop ax
-  pop si
-  ret
+    pop bx
+    pop ax
+    pop si
+    ret
 
 
 main:
+    ; setup data segments
+    mov ax, 0       ; can't write to ds/es directly
+    mov ds, ax
+    mov es, ax
 
-  ; setup data segments
-  mov ax, 0   ; can't write to ds/es directly
-  mov ds, ax
-  mov es, ax
+    ; setup stack
+    mov ss, ax
+    mov sp, 0x7C00  ; stack grows downwards from where we are loaded in memory
 
-  ; setup stack
-  mov ss, ax
-  mov sp, 0x7C00  ; stack grows downwards from where we are loaded in memory
+    ; print message
+    mov si, msg_hello
+    call puts
 
-  ; print message
-  mov si, msg_hello
-  call puts
-
-  hlt
+    hlt
 
 .halt:
-  jmp .halt
+    jmp .halt
+
 
 
 msg_hello: db 'Hello World!', ENDL, 0
